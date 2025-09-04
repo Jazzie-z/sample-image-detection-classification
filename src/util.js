@@ -14,3 +14,19 @@ export const drawRect = (detections, context) => {
     context.stroke();
   });
 };
+
+export const drawMesh = (predictions, context) => {
+  if (predictions.length > 0) {
+    predictions.forEach((prediction) => {
+      const keypoints = prediction.scaledMesh;
+
+      for (let i = 0; i < keypoints.length; i++) {
+        const [x, y] = keypoints[i];
+        context.beginPath();
+        context.arc(x, y, 1 /* radius */, 0, 3 * Math.PI);
+        context.fillStyle = "aqua";
+        context.fill();
+      }
+    });
+  }
+};

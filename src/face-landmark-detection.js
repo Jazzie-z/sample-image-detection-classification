@@ -1,69 +1,54 @@
-// Import dependencies
-import React, { useRef, useState, useEffect } from "react";
-import * as tf from "@tensorflow/tfjs";
-// 1. TODO - Import required model here
-// e.g. import * as tfmodel from "@tensorflow-models/tfmodel";
-import * as cocossd from "@tensorflow-models/coco-ssd";
+import React from "react";
 import Webcam from "react-webcam";
-import "./App.css";
-// 2. TODO - Import drawing utility here
-import { drawRect } from "./util";
+import * as facemesh from "@tensorflow-models/facemesh";
+import { drawMesh } from "./util";
 
-function ImageDetection() {
-  const webcamRef = useRef(null);
-  const canvasRef = useRef(null);
+const FaceLandmarkDetection = () => {
+  const webcamRef = React.useRef(null);
+  const canvasRef = React.useRef(null);
 
-  // Main function
-  const runCoco = async () => {
-    // 3. TODO - Load network
-    // e.g. const net = await cocossd.load();
-    const net = await cocossd.load();
-    //  Loop and detect hands
+  const runFacemesh = async () => {
+    const net = await facemesh.load({
+      inputResolution: { width: 640, height: 480 },
+      scale: 0.8,
+    });
+
     setInterval(() => {
       detect(net);
     }, 10);
   };
 
   const detect = async (net) => {
-    // Check data is available
     if (
       typeof webcamRef.current !== "undefined" &&
       webcamRef.current !== null &&
       webcamRef.current.video.readyState === 4
     ) {
-      // Get Video Properties
       const video = webcamRef.current.video;
       const videoWidth = webcamRef.current.video.videoWidth;
       const videoHeight = webcamRef.current.video.videoHeight;
 
-      // Set video width
       webcamRef.current.video.width = videoWidth;
       webcamRef.current.video.height = videoHeight;
 
-      // Set canvas height and width
       canvasRef.current.width = videoWidth;
       canvasRef.current.height = videoHeight;
 
-      // 4. TODO - Make Detections
-      // e.g. const obj = await net.detect(video);
-      const obj = await net.detect(video);
+      const face = await net.estimateFaces(video);
+      console.log(face);
 
-      // Draw mesh
       const ctx = canvasRef.current.getContext("2d");
-
-      // 5. TODO - Update drawing utility
-      // drawSomething(obj, ctx)
-      drawRect(obj, ctx);
+      drawMesh(face, ctx);
     }
   };
 
-  useEffect(() => {
-    runCoco();
-  }, [runCoco]);
+  React.useEffect(() => {
+    runFacemesh();
+  }, []);
 
   return (
     <div className="container">
-      <h3>Image Detection</h3>
+      <h3>Face Mesh</h3>
       <div className="video-container">
         <header className="video-header">
           <Webcam
@@ -92,6 +77,6 @@ function ImageDetection() {
       </div>
     </div>
   );
-}
+};
 
-export default ImageDetection;
+export default FaceLandmarkDetection;

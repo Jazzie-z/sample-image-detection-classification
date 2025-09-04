@@ -22,7 +22,14 @@
   }
 }
 
-.App-header {
+.video-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.video-header {
   min-height: 480px;
   display: block;
   font-size: calc(10px + 2vmin);
